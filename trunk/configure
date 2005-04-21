@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# todo: There should be some more clever tests here
+
+qtlibdir=$QTDIR
+qttest=yes
+
+while [ "$#" -gt 0 ]; do
+    case $1 in
+        --help|-h)
+            echo Possible command line options:
+            echo
+            echo "    --qtdir=<path>      Set QT directory"
+            echo "    --qt-no-check       Do not test QT version"
+            exit
+            ;;
+        --qtdir=*)
+            qtlibdir=`echo $1 | sed 's,^--qtdir=\(.*\),\1,'`
+            ;;
+        --qtdir)
+            shift
+            qtlibdir=$1
+            ;;
+        --qt-no-check)
+            qttest=no
+            ;;
+        *)
+            echo Unknown command line option ''$$1''
+            exit
+    esac
+    shift
+done
+
+echo -n "Testing QT version ... "
+
+if [ $qttest = 'yes' ]; then
+    if [ -f $qtlibdir/bin/qt3to4 ]; then
+        echo okay
+    else
+        echo failed
+        echo
+        echo No suitable version of QT was found.
+        echo 'Set $QTDIR to a directory containing'
+	echo QT 4, or use the command line option --qtdir=...
+        exit
+    fi
+else
+    echo skipped
+fi
+
+echo Running qmake
+QTDIR=$qtlibdir $qtlibdir/bin/qmake
+
+echo You may now run make
