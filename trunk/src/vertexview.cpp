@@ -36,6 +36,7 @@ namespace Ui
         for( std::vector<map::Vertex>::iterator it = vertices.begin() ;
           it != vertices.end() ; ++it )
         {
+            // Draw the vertex
             if( r.contains( *it ) )
             {
                 QPoint center = map2view( *it );
@@ -43,6 +44,13 @@ namespace Ui
                                 center + QPoint( 3, 3) );
                 paint.drawLine( center + QPoint( 3,-3),
                                 center + QPoint(-3, 3) );
+                // Is it selected?
+                bool selected = std::find( selection.begin(), selection.end(), &(*it) )
+                                   != selection.end();
+                if( selected )
+                    paint.drawRect( QRect( center + QPoint( -4, -4 ),
+                                           center + QPoint(  4,  4 ) ) );
+
             }
         }
     }

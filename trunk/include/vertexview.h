@@ -11,7 +11,10 @@
 #ifndef VERTEXVIEW_H
 #define VERTEXVIEW_H
 
+#include <vector>
+
 #include "mapview.h"
+#include "vertex.h"
 
 class QPaintEvent;
 
@@ -25,7 +28,9 @@ namespace Ui
             : MapView( myMap ) {}
 
         protected:
-            virtual void paintEvent( QPaintEvent * );            
+            virtual void paintEvent( QPaintEvent * );
+
+            std::vector<map::Vertex*> selection;
     };
 }
 
