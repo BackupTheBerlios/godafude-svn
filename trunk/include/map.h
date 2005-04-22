@@ -13,6 +13,7 @@
 
 #include <vector>
 
+#include "linedef.h"
 #include "thing.h"
 #include "vertex.h"
 #include "wad.h"
@@ -31,11 +32,12 @@ namespace map
              */
             Map( wad::Wad *w, wad::Wad::iterator &l );
 
-            //! A vector containing all things of this map
+            std::vector<Linedef> &linedefs() { return linedefs_; }
             std::vector<Thing> &things() { return things_; }
             std::vector<Vertex> &vertices() { return vertices_; }
 
         private:
+            std::vector<Linedef> linedefs_;
             std::vector<Thing> things_;
             std::vector<Vertex> vertices_;
     };

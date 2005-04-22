@@ -10,8 +10,10 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QPainter>
 #include <QPaintEvent>
 #include <QPalette>
+#include <QRect>
 #include <QResizeEvent>
 
 #include "mapview.h"
@@ -115,6 +117,31 @@ namespace Ui
     QPoint MapView::view2map( const QPoint &p ) const
     {
         return (p-center())/zoom()+mappos();
+    }
+    
+    void MapView::drawOutline( const QRect &r, QPainter &p )
+    {
+        for( std::vector<map::Linedef>::iterator it = mymap_->linedefs().begin() ;
+          it != mymap_->linedefs().end() ; ++it )
+        {
+            QPoint &v1 = mymap_->vertices()[it->v1()],
+                   &v2 = mymap_->vertices()[it->v2()];
+                   
+            int o1 = outcode( v1, r ),
+                o2 = outcode( v2, r );
+                
+            if( (o1 & o2) == 0 )
+              p.drawLine( map2view(v1), map2view(v2) );
+        }
+    }
+    
+    int MapView::outcode( const QPoint &p, const QRect &r ) const
+    {
+        return
+         ((p.y() < r.top()    ) << 3) |
+         ((p.y() > r.bottom() ) << 2) |
+         ((p.x() < r.left()   ) << 1) |
+         ( p.x() > r.right());
     }
     
     int MapView::movestep() const

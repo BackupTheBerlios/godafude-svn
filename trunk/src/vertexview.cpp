@@ -20,11 +20,15 @@ namespace Ui
     void VertexView::paintEvent( QPaintEvent *e )
     {
         MapView::paintEvent( e );       // Draw the grid
-        
+
         QRect r(view2map(e->rect().topLeft()),
                 view2map(e->rect().bottomRight()));
-        
+
         QPainter paint(this);
+
+        paint.setPen( Qt::lightGray );
+        drawOutline( r, paint );
+                
         paint.setPen( Qt::green );
         
         std::vector<map::Vertex> &vertices = mymap_->vertices();

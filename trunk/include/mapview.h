@@ -14,9 +14,11 @@
 #include <QWidget>
 #include "map.h"
 
+class QPainter;
 class QPaintEvent;
 class QPalette;
 class QPoint;
+class QRect;
 class QResizeEvent;
 
 namespace Ui
@@ -63,6 +65,12 @@ namespace Ui
             inline const QPoint center() const { return center_; }
             QPoint map2view( const QPoint &p ) const;
             QPoint view2map( const QPoint &p ) const;
+
+            //! Draw an ouline of the map inside the specified (map) rect
+            void drawOutline( const QRect &r, QPainter &p );
+            
+            //! Returns a cohan sutherland outcode (above, below, left, right)
+            int outcode( const QPoint &p, const QRect &r ) const;
             
             map::Map *mymap_;
             
