@@ -8,7 +8,6 @@
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
 
-#include <iostream>
 #include <QAction>
 #include <QActionGroup>
 #include <QMouseEvent>
@@ -28,6 +27,7 @@ namespace Ui
     MapView::MapView( map::Map *mymap )
      : QWidget(),
        mymap_( mymap ),
+       selection_(),       
        pal_(),
        mappos_(0,0),
        zoom_(1.0)
@@ -113,6 +113,26 @@ namespace Ui
         {
             focusView_ = this;
             focusID_ = id;
+            update();
+        }
+    }
+    
+    void MapView::mousePressEvent( QMouseEvent *e )
+    {
+        if( focusView_ == this )
+        {
+            if( (e->modifiers() & Qt::ControlModifier) == 0 )
+             selection_.clear();
+
+            std::vector<int>::iterator it = selection_.begin();
+            
+            while( it != selection_.end() && *it != focusID_ ) ++it;
+            
+            if( it != selection_.end() )
+              selection_.erase(it);
+            else
+              selection_.push_back( focusID_ );
+
             update();
         }
     }

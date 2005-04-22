@@ -32,8 +32,6 @@ namespace Ui
             virtual void paintEvent( QPaintEvent * );
             
             virtual int getID( const QPoint &p ) const;
-
-            std::vector<map::Vertex*> selection;
     };
 }
 

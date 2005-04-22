@@ -45,16 +45,21 @@ namespace Ui
                 paint.drawLine( center + QPoint( 3,-3),
                                 center + QPoint(-3, 3) );
                 // Is it selected?
-                bool selected = std::find( selection.begin(), selection.end(), &(*it) )
-                                   != selection.end();
-                bool focussed = this == focusView_ && it - vertices.begin() == focusID_;
+                bool selected = std::find( selection_.begin(), selection_.end(), it-vertices.begin() )
+                                   != selection_.end();
+                bool focussed = this == focusView_ && it-vertices.begin() == focusID_;
 
                 if( selected || focussed )
                 {
-                    paint.drawRect( QRect( center + QPoint( -4, -4 ),
-                                           center + QPoint(  4,  4 ) ) );
-                }
+                    if( selected && focussed )
+                     paint.setPen( Qt::red );
+                    else if( focussed )
+                     paint.setPen( Qt::yellow );
 
+                     paint.drawRect( QRect( center + QPoint( -4, -4 ),
+                                            center + QPoint(  4,  4 ) ) );
+                    paint.setPen( Qt::green );
+                }
             }
         }
     }

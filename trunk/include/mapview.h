@@ -11,6 +11,8 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
+#include <vector>
+
 #include <QWidget>
 #include "map.h"
 
@@ -63,6 +65,9 @@ namespace Ui
             //! Mouse hover
             virtual void mouseMoveEvent( QMouseEvent* );
 
+            //! Selection
+            virtual void mousePressEvent( QMouseEvent* );
+
             //! This draws a grid (and nothing else)
             virtual void paintEvent( QPaintEvent* );
             virtual void resizeEvent( QResizeEvent* );
@@ -85,6 +90,8 @@ namespace Ui
             
             static MapView *focusView_; // View that has the ID focus
             static int focusID_;        // ID of focussed object or -1 if none
+
+            std::vector<int> selection_;
 
         private:
             //! How many (map-)units to move if a cursor key is pressed
