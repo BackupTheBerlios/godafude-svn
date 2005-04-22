@@ -8,8 +8,10 @@
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
 
+#include <iostream>
 #include <QAction>
 #include <QActionGroup>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPaintEvent>
 #include <QPalette>
@@ -20,6 +22,9 @@
 
 namespace Ui
 {
+    MapView *MapView::focusView_ = static_cast<MapView*>(NULL);
+    int MapView::focusID_ = -1;
+
     MapView::MapView( map::Map *mymap )
      : QWidget(),
        mymap_( mymap ),
@@ -30,6 +35,8 @@ namespace Ui
         // Set the palette: background -> black
         pal_.setColor( QPalette::Background, QColor(0, 0, 0 ) );
         this->setPalette( pal_ );
+        
+        setMouseTracking(true);
         
         // Let the user move the map
         QActionGroup *moveActions = new QActionGroup(this);
@@ -96,6 +103,18 @@ namespace Ui
     void MapView::zoomOut()
     {
         zoom() /= 1.2; update();
+    }
+    
+    void MapView::mouseMoveEvent( QMouseEvent *e )
+    {
+        int id = getID( e->pos() );
+
+        if( id != -1 )
+        {
+            focusView_ = this;
+            focusID_ = id;
+            update();
+        }
     }
 
     void MapView::paintEvent( QPaintEvent *e )

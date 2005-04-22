@@ -47,12 +47,45 @@ namespace Ui
                 // Is it selected?
                 bool selected = std::find( selection.begin(), selection.end(), &(*it) )
                                    != selection.end();
-                if( selected )
+                bool focussed = this == focusView_ && it - vertices.begin() == focusID_;
+
+                if( selected || focussed )
+                {
                     paint.drawRect( QRect( center + QPoint( -4, -4 ),
                                            center + QPoint(  4,  4 ) ) );
+                }
 
             }
         }
+    }
+
+    int VertexView::getID( const QPoint &p ) const
+    {
+        QRect r( p + QPoint( -4, -4 ), p + QPoint( 4, 4 ) );
+        
+        int nearestID = -1;
+        int nearestDist = 100;
+        
+        std::vector<map::Vertex> &vertices = mymap_->vertices();
+
+        for( std::vector<map::Vertex>::iterator it = vertices.begin() ;
+            it != vertices.end() ; ++it )
+        {
+            QPoint tmp;
+
+            if( r.contains( tmp = map2view( *it ) ) )
+            {
+                int newdist = (p.x() - tmp.x()) * (p.x() - tmp.x()) +
+                              (p.y() - tmp.y()) * (p.y() - tmp.y());
+                if( newdist < nearestDist )
+                {
+                    nearestID = it - vertices.begin();
+                    nearestDist = newdist;
+                }
+            }
+        }
+
+        return nearestID;
     }
 }
 

@@ -14,6 +14,7 @@
 #include <QWidget>
 #include "map.h"
 
+class QMouseEvent;
 class QPainter;
 class QPaintEvent;
 class QPalette;
@@ -59,9 +60,16 @@ namespace Ui
             void zoomOut();
 
         protected:
+            //! Mouse hover
+            virtual void mouseMoveEvent( QMouseEvent* );
+
             //! This draws a grid (and nothing else)
             virtual void paintEvent( QPaintEvent* );
             virtual void resizeEvent( QResizeEvent* );
+            
+            //! Returns the ID of the object at (view) position p or -1
+            virtual int getID( const QPoint &p ) const = 0;
+            
             inline const QPoint center() const { return center_; }
             QPoint map2view( const QPoint &p ) const;
             QPoint view2map( const QPoint &p ) const;
@@ -71,9 +79,13 @@ namespace Ui
             
             //! Returns a cohan sutherland outcode (above, below, left, right)
             int outcode( const QPoint &p, const QRect &r ) const;
+
             
             map::Map *mymap_;
             
+            static MapView *focusView_; // View that has the ID focus
+            static int focusID_;        // ID of focussed object or -1 if none
+
         private:
             //! How many (map-)units to move if a cursor key is pressed
             int movestep() const;
@@ -81,7 +93,8 @@ namespace Ui
             QPalette pal_;
             QPoint mappos_;
             float zoom_;
-            QPoint center_;       // center of the widget            
+            QPoint center_;       // center of the widget
+
     };
 }
 
