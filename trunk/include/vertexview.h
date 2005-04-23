@@ -16,6 +16,7 @@
 #include "mapview.h"
 #include "vertex.h"
 
+class QMouseEvent;
 class QPaintEvent;
 class QPoint;
 
@@ -29,9 +30,19 @@ namespace Ui
             : MapView( myMap ) {}
 
         protected:
+            virtual void mouseMoveEvent( QMouseEvent * );
             virtual void paintEvent( QPaintEvent * );
             
             virtual int getID( const QPoint &p ) const;
+        private:
+            //! Relative size of the green crosses that mark each vertex
+            static const int markSize;
+            
+            //! Relative size of the rectangle for hover/selection
+            static const int selectSize;
+
+            //! Relative size of the are around the vertex that the mouse must be in to find it
+            static const int findSize;
     };
 }
 

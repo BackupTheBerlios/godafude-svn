@@ -73,6 +73,11 @@ namespace Ui
         act->setShortcut( QKeySequence( Qt::Key_Minus ) );
         addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(zoomOut()) );
+        
+        act = new QAction(zoomActions);
+        act->setShortcut( QKeySequence( Qt::Key_Asterisk ) );
+        addAction( act );
+        connect( act, SIGNAL(triggered()), this, SLOT(zoom100()) );
     }
     
     void MapView::mapLeft()
@@ -97,12 +102,17 @@ namespace Ui
 
     void MapView::zoomIn()
     {
-        zoom() *= 1.2; update();
+        zoom() *= 1.5; update();
     }
     
     void MapView::zoomOut()
     {
-        zoom() /= 1.2; update();
+        zoom() /= 1.5; update();
+    }
+    
+    void MapView::zoom100()
+    {
+        zoom() = 1.0; update();
     }
     
     void MapView::mouseMoveEvent( QMouseEvent *e )

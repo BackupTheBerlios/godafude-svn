@@ -17,20 +17,51 @@
 
 namespace Ui
 {
+    const int VertexView::markSize = 3;
+    const int VertexView::selectSize = 4;
+    const int VertexView::findSize = 10;
+
+    void VertexView::mouseMoveEvent( QMouseEvent *e )
+    {
+        if( (e->buttons() & Qt::LeftButton) &&
+            focusID_ != -1 )
+        {
+            mymap_->vertices()[focusID_].rx() = view2map(e->pos()).x();
+            mymap_->vertices()[focusID_].ry() = view2map(e->pos()).y();
+            update();
+        }
+         else MapView::mouseMoveEvent( e );
+    }
+
     void VertexView::paintEvent( QPaintEvent *e )
     {
         MapView::paintEvent( e );       // Draw the grid
 
+        // Translate the view rect to the corresponding map rect
         QRect r(view2map(e->rect().topLeft()),
                 view2map(e->rect().bottomRight()));
 
         QPainter paint(this);
 
+        // Draw the outline of the map
         paint.setPen( Qt::lightGray );
         drawOutline( r, paint );
-                
+
         paint.setPen( Qt::green );
-        
+
+        // Precalculate the QPoints of the four corners of the green
+        // crosses that are used to mark a vertex
+        int m = static_cast<int>(zoom()*markSize + 0.5);
+        const QPoint tl = QPoint( -m, -m ),
+                     tr = QPoint(  m, -m ),
+                     bl = QPoint( -m,  m ),
+                     br = QPoint(  m,  m );
+
+        // Precalculate the QRect for a selected/focussed vertex
+        m = static_cast<int>(zoom()*selectSize + 0.5);
+        const QRect selRect( -m, -m, 2*m + 1, 2*m + 1 );
+
+        // The actual drawing starts here
         std::vector<map::Vertex> &vertices = mymap_->vertices();
 
         for( std::vector<map::Vertex>::iterator it = vertices.begin() ;
@@ -39,11 +70,11 @@ namespace Ui
             // Draw the vertex
             if( r.contains( *it ) )
             {
+                // Draw the vertex
                 QPoint center = map2view( *it );
-                paint.drawLine( center + QPoint(-3,-3),
-                                center + QPoint( 3, 3) );
-                paint.drawLine( center + QPoint( 3,-3),
-                                center + QPoint(-3, 3) );
+                paint.drawLine( center + tl, center + br );
+                paint.drawLine( center + tr, center + bl );
+
                 // Is it selected?
                 bool selected = std::find( selection_.begin(), selection_.end(), it-vertices.begin() )
                                    != selection_.end();
@@ -56,8 +87,8 @@ namespace Ui
                     else if( focussed )
                      paint.setPen( Qt::yellow );
 
-                     paint.drawRect( QRect( center + QPoint( -4, -4 ),
-                                            center + QPoint(  4,  4 ) ) );
+                    paint.drawRect( selRect.translated(center) );
+
                     paint.setPen( Qt::green );
                 }
             }
@@ -66,22 +97,28 @@ namespace Ui
 
     int VertexView::getID( const QPoint &p ) const
     {
-        QRect r( p + QPoint( -4, -4 ), p + QPoint( 4, 4 ) );
+        // Of all vertices inside the rect around the mouse pointer
+        // find the one that is closest to the mouse pointer
+        int m = static_cast<int>(zoom()*findSize + 0.5);
+        const QRect r( view2map( p + QPoint( -m, -m ) ),
+                       view2map( p + QPoint(  m,  m ) ) );
+
+        int px = view2map(p).x(),
+            py = view2map(p).y();
         
         int nearestID = -1;
-        int nearestDist = 100;
+        int nearestDist = findSize*findSize*2 + 1;    // Impossibly large
         
         std::vector<map::Vertex> &vertices = mymap_->vertices();
 
         for( std::vector<map::Vertex>::iterator it = vertices.begin() ;
             it != vertices.end() ; ++it )
         {
-            QPoint tmp;
-
-            if( r.contains( tmp = map2view( *it ) ) )
+            if( r.contains( *it ) )
             {
-                int newdist = (p.x() - tmp.x()) * (p.x() - tmp.x()) +
-                              (p.y() - tmp.y()) * (p.y() - tmp.y());
+                int newdist = (px - it->x()) * (px - it->x()) +
+                              (py - it->y()) * (py - it->y());
+
                 if( newdist < nearestDist )
                 {
                     nearestID = it - vertices.begin();

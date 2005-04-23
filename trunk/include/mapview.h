@@ -60,6 +60,7 @@ namespace Ui
             
             void zoomIn();
             void zoomOut();
+            void zoom100();
 
         protected:
             //! Mouse hover
@@ -101,7 +102,6 @@ namespace Ui
             QPoint mappos_;
             float zoom_;
             QPoint center_;       // center of the widget
-
     };
 }
 
