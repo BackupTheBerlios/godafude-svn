@@ -16,6 +16,7 @@
 #include <QWidget>
 #include "map.h"
 
+class QActionGroup;
 class QMouseEvent;
 class QPainter;
 class QPaintEvent;
@@ -62,6 +63,10 @@ namespace Ui
             void zoomOut();
             void zoom100();
 
+            void gridInc();
+            void gridDec();
+            void gridToggle(bool);
+
         protected:
             //! Mouse hover
             virtual void mouseMoveEvent( QMouseEvent* );
@@ -78,6 +83,8 @@ namespace Ui
             
             inline const QPoint center() const { return center_; }
             QPoint map2view( const QPoint &p ) const;
+            int mapx2viewx( int x ) const;
+            int mapy2viewy( int y ) const;
             QPoint view2map( const QPoint &p ) const;
 
             //! Draw an ouline of the map inside the specified (map) rect
@@ -86,13 +93,14 @@ namespace Ui
             //! Returns a cohan sutherland outcode (above, below, left, right)
             int outcode( const QPoint &p, const QRect &r ) const;
 
-            
             map::Map *mymap_;
             
             static MapView *focusView_; // View that has the ID focus
             static int focusID_;        // ID of focussed object or -1 if none
 
             std::vector<int> selection_;
+            
+            QActionGroup *zoomActions, *gridActions;
 
         private:
             //! How many (map-)units to move if a cursor key is pressed
@@ -101,7 +109,12 @@ namespace Ui
             QPalette pal_;
             QPoint mappos_;
             float zoom_;
+            int gridSize_;
+            static const int maxGridSize_;
+            bool showGrid_;
             QPoint center_;       // center of the widget
+            
+            QAction *gridIncAct_, *gridDecAct_, *gridToggleAct_;
     };
 }
 

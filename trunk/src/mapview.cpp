@@ -10,6 +10,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPaintEvent>
@@ -21,8 +22,15 @@
 
 namespace Ui
 {
+    // A modulo operator that works for negative numbers
+    inline int mod( int a, int b )
+    {
+        return a >= 0 ? a % b : b - ( -a ) % b;
+    }
+
     MapView *MapView::focusView_ = static_cast<MapView*>(NULL);
     int MapView::focusID_ = -1;
+    const int MapView::maxGridSize_ = 1024;
 
     MapView::MapView( map::Map *mymap )
      : QWidget(),
@@ -30,8 +38,12 @@ namespace Ui
        selection_(),       
        pal_(),
        mappos_(0,0),
-       zoom_(1.0)
+       zoom_(1.0),
+       gridSize_(64),
+       showGrid_(true)
     {
+        // TODO: Tool tips
+
         // Set the palette: background -> black
         pal_.setColor( QPalette::Background, QColor(0, 0, 0 ) );
         this->setPalette( pal_ );
@@ -43,41 +55,60 @@ namespace Ui
         
         QAction *act = new QAction(moveActions);
         act->setShortcut( QKeySequence( Qt::Key_Left ) );
-        addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(mapLeft()) );        
         
         act = new QAction(moveActions);
         act->setShortcut( QKeySequence( Qt::Key_Right ) );
-        addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(mapRight()) );
         
         act = new QAction(moveActions);
         act->setShortcut( QKeySequence( Qt::Key_Up ) );
-        addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(mapUp()) );
         
         act = new QAction(moveActions);
         act->setShortcut( QKeySequence( Qt::Key_Down ) );
-        addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(mapDown()) );
         
+        addActions(moveActions->actions());
+
         // Zoom keys
-        QActionGroup *zoomActions = new QActionGroup(this);
+        zoomActions = new QActionGroup(this);
         
-        act = new QAction(zoomActions);
+        act = new QAction( tr("Zoom In"), zoomActions);
         act->setShortcut( QKeySequence( Qt::Key_Plus ) );
-        addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(zoomIn()) );
         
-        act = new QAction(zoomActions);
+        act = new QAction( tr("Zoom Out"), zoomActions);
         act->setShortcut( QKeySequence( Qt::Key_Minus ) );
-        addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(zoomOut()) );
         
-        act = new QAction(zoomActions);
+        act = new QAction( tr("Zoom to 100%"), zoomActions);
         act->setShortcut( QKeySequence( Qt::Key_Asterisk ) );
-        addAction( act );
         connect( act, SIGNAL(triggered()), this, SLOT(zoom100()) );
+        
+        addActions(zoomActions->actions());
+
+        // Grid keys
+        gridActions = new QActionGroup(this);
+        
+        act = new QAction( tr("Increase grid size"), gridActions );
+        act->setShortcut( QKeySequence( Qt::SHIFT | Qt::Key_G ) );
+        connect( act, SIGNAL(triggered()), this, SLOT(gridInc()) );
+        gridIncAct_ = act;
+
+        act = new QAction( tr("Decrease grid size"), gridActions );
+        act->setShortcut( QKeySequence( Qt::Key_G ) );
+        connect( act, SIGNAL(triggered()), this, SLOT(gridDec()) );
+        gridDecAct_ = act;
+        
+        addActions(gridActions->actions());
+        
+        act = new QAction( tr("Show grid"), this );
+        act->setCheckable(true); act->setChecked(showGrid_);
+        act->setShortcut( QKeySequence( Qt::Key_H ) );
+        connect( act, SIGNAL(checked(bool)), this, SLOT(gridToggle(bool)) );
+        gridToggleAct_ = act;
+        addAction( gridToggleAct_ );
     }
     
     void MapView::mapLeft()
@@ -114,7 +145,33 @@ namespace Ui
     {
         zoom() = 1.0; update();
     }
-    
+
+    void MapView::gridInc()
+    { 
+        gridSize_ <<= 1;
+        gridDecAct_->setEnabled(true);
+        
+        if( gridSize_ == maxGridSize_ )
+            gridIncAct_->setEnabled(false);
+        update();
+    }
+
+    void MapView::gridDec()
+    { 
+        gridSize_ >>= 1;
+        gridIncAct_->setEnabled(true);
+        
+        if( gridSize_ == 1 )
+            gridDecAct_->setEnabled(false);
+        update();
+    }
+
+    void MapView::gridToggle( bool b )
+    {
+        showGrid_ = b;
+        update();
+    }
+
     void MapView::mouseMoveEvent( QMouseEvent *e )
     {
         int id = getID( e->pos() );
@@ -129,6 +186,18 @@ namespace Ui
     
     void MapView::mousePressEvent( QMouseEvent *e )
     {
+        if( e->button() == Qt::RightButton )
+        {
+            QMenu m;
+
+            m.addActions( zoomActions->actions() );
+            m.addActions( gridActions->actions() );
+            m.addAction( gridToggleAct_ );
+            
+            m.exec( e->globalPos() );
+
+            return;
+        }
         if( focusView_ == this )
         {
             if( (e->modifiers() & Qt::ControlModifier) == 0 )
@@ -149,7 +218,23 @@ namespace Ui
 
     void MapView::paintEvent( QPaintEvent *e )
     {
-        Q_UNUSED(e)
+        if( showGrid_ )
+        {
+            QPainter p(this);
+            p.setPen( Qt::blue );
+            // Translate the view rect to the corresponding map rect
+            QRect r(view2map(e->rect().topLeft()),
+                    view2map(e->rect().bottomRight()));
+
+            for( int i = r.top() - mod(r.top(), gridSize_ ) ; i <= r.bottom() ; i += gridSize_ )
+                p.drawLine( e->rect().left(), mapy2viewy(i),
+                            e->rect().right(), mapy2viewy(i) );
+
+
+            for( int i = r.left() - mod(r.left(), gridSize_ )  ; i <= r.right() ; i += gridSize_ )
+                p.drawLine( mapx2viewx(i), e->rect().top(),
+                            mapx2viewx(i), e->rect().bottom() );
+        }
     }
     
     void MapView::resizeEvent( QResizeEvent *e )
@@ -162,7 +247,17 @@ namespace Ui
     {
         return (p-mappos())*zoom()+center();
     }
-    
+
+    int MapView::mapx2viewx( int x ) const
+    {
+        return static_cast<int>((x-mappos().x())*zoom()) + center().x();
+    }
+
+    int MapView::mapy2viewy( int y ) const
+    {
+        return static_cast<int>((y-mappos().y())*zoom()) + center().y();
+    }
+
     QPoint MapView::view2map( const QPoint &p ) const
     {
         return (p-center())/zoom()+mappos();

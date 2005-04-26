@@ -58,8 +58,9 @@ namespace Ui
                      br = QPoint(  m,  m );
 
         // Precalculate the QRect for a selected/focussed vertex
-        m = static_cast<int>(zoom()*selectSize + 0.5);
-        const QRect selRect( -m, -m, 2*m + 1, 2*m + 1 );
+        int m2 = static_cast<int>(zoom()*selectSize + 0.5);
+        if( m2 <= m ) m2 = m + 1; 
+        const QRect selRect( -m2, -m2, 2*m2 + 1, 2*m2 + 1 );
 
         // The actual drawing starts here
         std::vector<map::Vertex> &vertices = mymap_->vertices();
