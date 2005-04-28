@@ -26,8 +26,7 @@ namespace Ui
         if( (e->buttons() & Qt::LeftButton) &&
             focusID_ != -1 )
         {
-            mymap_->vertices()[focusID_].rx() = view2map(e->pos()).x();
-            mymap_->vertices()[focusID_].ry() = view2map(e->pos()).y();
+            mymap_->vertices()[focusID_].set(snap2grid(view2map(e->pos())));
             update();
         }
          else MapView::mouseMoveEvent( e );
@@ -77,8 +76,9 @@ namespace Ui
                 paint.drawLine( center + tr, center + bl );
 
                 // Is it selected?
-                bool selected = std::find( selection_.begin(), selection_.end(), it-vertices.begin() )
-                                   != selection_.end();
+                bool selected = selection_.find( it-vertices.begin() ) != selection_.end();
+
+                // Is this object focussed?
                 bool focussed = this == focusView_ && it-vertices.begin() == focusID_;
 
                 if( selected || focussed )
@@ -86,7 +86,7 @@ namespace Ui
                     if( selected && focussed )
                      paint.setPen( Qt::red );
                     else if( focussed )
-                     paint.setPen( Qt::yellow );
+                     paint.setPen( Qt::yellow ); // else it's only selected and remains green
 
                     paint.drawRect( selRect.translated(center) );
 

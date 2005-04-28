@@ -11,7 +11,7 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
-#include <vector>
+#include <set>
 
 #include <QWidget>
 #include "map.h"
@@ -93,12 +93,22 @@ namespace Ui
             //! Returns a cohan sutherland outcode (above, below, left, right)
             int outcode( const QPoint &p, const QRect &r ) const;
 
+            //! Where to snap to grid
+            enum snaptype { ul, lr, nearest };
+            
+            //! Returns the QPoint of the grid intersection that is nearest to the given one
+            /*!
+                \param p The reference point in map coordinates
+                \param dir Where to snap
+            */
+            QPoint snap2grid( const QPoint &p, snaptype dir = nearest ) const;
+
             map::Map *mymap_;
             
             static MapView *focusView_; // View that has the ID focus
             static int focusID_;        // ID of focussed object or -1 if none
 
-            std::vector<int> selection_;
+            std::set<int> selection_;
             
             QActionGroup *zoomActions, *gridActions;
 

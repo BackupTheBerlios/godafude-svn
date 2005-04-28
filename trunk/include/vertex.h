@@ -23,6 +23,9 @@ namespace map
         public:
             Vertex( int x = 0, int y = 0 )
             : QPoint( x, y ) {}
+
+            inline void set( const QPoint &v )
+            { rx() = v.x(), ry() = v.y(); }
         
             //! Load a vertex from a QDataStream
             Vertex( QDataStream &s );

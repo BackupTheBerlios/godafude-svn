@@ -3,7 +3,7 @@
 # todo: There should be some more clever tests here
 
 progname=Godafude
-qtversion="4.0.0-rc1-snapshot-20050426 (might work with b2)"
+qtversion="4.0.0-rc1-snapshot-20050427"
 qtlibdir=$QTDIR
 qttest=yes
 
@@ -27,7 +27,7 @@ while [ "$#" -gt 0 ]; do
             qttest=no
             ;;
         *)
-            echo Unknown command line option ''$$1''
+            echo Unknown command line option $1
             exit
     esac
     shift
