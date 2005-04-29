@@ -15,6 +15,8 @@
 
 #include "vertexview.h"
 
+using gamemap::Vertex;
+
 namespace Ui
 {
     const int VertexView::markSize = 3;
@@ -26,10 +28,34 @@ namespace Ui
         if( (e->buttons() & Qt::LeftButton) &&
             focusID_ != -1 )
         {
-            mymap_->vertices()[focusID_].set(snap2grid(view2map(e->pos())));
+            std::vector<Vertex> &vert = mymap_->vertices();
+
+            // Do the move:
+            // First figure out the new position of the focussed vertex
+            vert[focusID_].set(snap2grid(view2map(e->pos())));
+
+            // Get the distance that all other selected vertices have to move
+            QPoint dist = vert[focusID_] - orig_[focusID_];
+
+            std::set<int>::iterator it;
+            for( it = selection_.begin() ; it != selection_.end() ; ++it )
+               vert[*it].set(orig_[*it] + dist);
+
             update();
         }
          else MapView::mouseMoveEvent( e );
+    }
+
+    void VertexView::mousePressEvent( QMouseEvent *e )
+    {
+        MapView::mousePressEvent(e);
+        if( e->button() == Qt::LeftButton )
+        {
+            orig_.clear();
+            for( std::set<int>::iterator it = selection_.begin();
+              it != selection_.end() ; ++it )
+             orig_[*it] = mymap_->vertices()[*it];
+        }
     }
 
     void VertexView::paintEvent( QPaintEvent *e )
@@ -40,7 +66,7 @@ namespace Ui
         QRect r(view2map(e->rect().topLeft()),
                 view2map(e->rect().bottomRight()));
 
-        QPainter paint(this);
+        QPainter paint(this);            // snap2grid(
 
         // Draw the outline of the map
         paint.setPen( Qt::lightGray );
@@ -62,9 +88,9 @@ namespace Ui
         const QRect selRect( -m2, -m2, 2*m2 + 1, 2*m2 + 1 );
 
         // The actual drawing starts here
-        std::vector<map::Vertex> &vertices = mymap_->vertices();
+        std::vector<gamemap::Vertex> &vertices = mymap_->vertices();
 
-        for( std::vector<map::Vertex>::iterator it = vertices.begin() ;
+        for( std::vector<gamemap::Vertex>::iterator it = vertices.begin() ;
           it != vertices.end() ; ++it )
         {
             // Draw the vertex
@@ -110,9 +136,9 @@ namespace Ui
         int nearestID = -1;
         int nearestDist = findSize*findSize*2 + 1;    // Impossibly large
         
-        std::vector<map::Vertex> &vertices = mymap_->vertices();
+        std::vector<gamemap::Vertex> &vertices = mymap_->vertices();
 
-        for( std::vector<map::Vertex>::iterator it = vertices.begin() ;
+        for( std::vector<gamemap::Vertex>::iterator it = vertices.begin() ;
             it != vertices.end() ; ++it )
         {
             if( r.contains( *it ) )

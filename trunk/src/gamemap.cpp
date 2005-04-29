@@ -8,13 +8,13 @@
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
 
-#include "map.h"
+#include "gamemap.h"
 
 #include <iostream> // kill me!
 
 using wad::Wad;
 
-namespace map
+namespace gamemap
 {
     Map::Map( Wad *w, Wad::iterator &l )
     {

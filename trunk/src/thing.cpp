@@ -11,7 +11,7 @@
 #include <QDataStream>
 #include "thing.h"
 
-namespace map
+namespace gamemap
 {
     Thing::Thing( int x, int y, int type )
     : tid_(0), x_(x), y_(y), z_(0), angle_(0), type_(type),

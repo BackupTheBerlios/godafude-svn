@@ -26,7 +26,7 @@ namespace Ui
     int MapView::focusID_ = -1;
     const int MapView::maxGridSize_ = 1024;
 
-    MapView::MapView( map::Map *mymap )
+    MapView::MapView( gamemap::Map *mymap )
      : QWidget(),
        mymap_( mymap ),
        selection_(),       
@@ -266,7 +266,7 @@ namespace Ui
     
     void MapView::drawOutline( const QRect &r, QPainter &p )
     {
-        for( std::vector<map::Linedef>::iterator it = mymap_->linedefs().begin() ;
+        for( std::vector<gamemap::Linedef>::iterator it = mymap_->linedefs().begin() ;
           it != mymap_->linedefs().end() ; ++it )
         {
             QPoint &v1 = mymap_->vertices()[it->v1()],

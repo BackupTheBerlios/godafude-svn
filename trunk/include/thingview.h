@@ -20,7 +20,7 @@ namespace Ui
     class ThingView: public MapView
     {
         public:
-            ThingView( map::Map *myMap )
+            ThingView( gamemap::Map *myMap )
              : MapView( myMap ) {}
 
         protected:

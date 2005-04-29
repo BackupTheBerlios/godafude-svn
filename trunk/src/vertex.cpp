@@ -12,7 +12,7 @@
 
 #include "vertex.h"
 
-namespace map
+namespace gamemap
 {
     Vertex::Vertex( QDataStream &s )
      : QPoint()

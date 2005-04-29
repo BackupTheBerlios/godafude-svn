@@ -11,7 +11,7 @@
 #include <QDataStream>
 #include "linedef.h"
 
-namespace map
+namespace gamemap
 {
     Linedef::Linedef( QDataStream &s, bool isHexen )
     {

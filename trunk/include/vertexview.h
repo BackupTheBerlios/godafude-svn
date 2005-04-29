@@ -11,8 +11,9 @@
 #ifndef VERTEXVIEW_H
 #define VERTEXVIEW_H
 
-#include <vector>
+#include <map>
 
+#include "gamemap.h"
 #include "mapview.h"
 #include "vertex.h"
 
@@ -26,15 +27,18 @@ namespace Ui
     class VertexView: public MapView
     {
         public:
-            VertexView( map::Map *myMap )
-            : MapView( myMap ) {}
+            VertexView( gamemap::Map *myMap )
+            : MapView( myMap ), orig_() {}
 
         protected:
-            virtual void mouseMoveEvent( QMouseEvent * );
+            virtual void mouseMoveEvent( QMouseEvent* );
+            virtual void mousePressEvent( QMouseEvent* );
             virtual void paintEvent( QPaintEvent * );
             
             virtual int getID( const QPoint &p ) const;
         private:
+            std::map<int,gamemap::Vertex> orig_;
+
             //! Relative size of the green crosses that mark each vertex
             static const int markSize;
             

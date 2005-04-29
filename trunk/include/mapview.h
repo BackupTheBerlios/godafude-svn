@@ -14,7 +14,7 @@
 #include <set>
 
 #include <QWidget>
-#include "map.h"
+#include "gamemap.h"
 
 class QActionGroup;
 class QMouseEvent;
@@ -43,7 +43,7 @@ namespace Ui
         Q_OBJECT
 
         public:
-            MapView( map::Map *mymap );
+            MapView( gamemap::Map *mymap );
             
             //! The map position of the center point
             inline QPoint &mappos() { return mappos_; }
@@ -103,13 +103,13 @@ namespace Ui
             */
             QPoint snap2grid( const QPoint &p, snaptype dir = nearest ) const;
 
-            map::Map *mymap_;
+            gamemap::Map *mymap_;
             
             static MapView *focusView_; // View that has the ID focus
             static int focusID_;        // ID of focussed object or -1 if none
 
             std::set<int> selection_;
-            
+
             QActionGroup *zoomActions, *gridActions;
 
         private:

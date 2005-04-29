@@ -16,7 +16,7 @@
 #include <QPoint>
 #include <QRect>
 
-#include "map.h"
+#include "gamemap.h"
 #include "thingview.h"
 
 namespace Ui
@@ -31,9 +31,9 @@ namespace Ui
         QPainter paint(this);
         paint.setPen( Qt::green );
         
-        std::vector<map::Thing> &things = mymap_->things();
+        std::vector<gamemap::Thing> &things = mymap_->things();
 
-        for( std::vector<map::Thing>::iterator it = things.begin() ;
+        for( std::vector<gamemap::Thing>::iterator it = things.begin() ;
           it != things.end() ; ++it )
         {
             if( r.contains( it->pos() ) )

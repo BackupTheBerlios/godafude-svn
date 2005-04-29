@@ -15,7 +15,7 @@
 
 class QDataStream;
 
-namespace map
+namespace gamemap
 {
     //! This class represents a Thing
     class Thing

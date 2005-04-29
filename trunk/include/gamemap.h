@@ -19,7 +19,7 @@
 #include "wad.h"
 
 //! Namespace for everything related to DOOM maps
-namespace map
+namespace gamemap
 {
     //! A container for everything you would want to know about a map
     class Map

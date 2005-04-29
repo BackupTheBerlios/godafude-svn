@@ -15,7 +15,7 @@
 #include <QApplication>
 #include <QFile>
 
-#include "map.h"
+#include "gamemap.h"
 #include "vertexview.h"
 #include "wad.h"
 
@@ -23,7 +23,7 @@ using namespace std;
 
 class mapnotfound {};
 
-map::Map getMap( const char *filename, const char *mapname )
+gamemap::Map getMap( const char *filename, const char *mapname )
 {
     wad::File f( filename );
 
@@ -34,7 +34,7 @@ map::Map getMap( const char *filename, const char *mapname )
     
     if( it == f.end() ) throw mapnotfound();
     
-    return map::Map( &f, it );
+    return gamemap::Map( &f, it );
 }
 
 int main( int argc, char **argv )
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
     
     try
     {
-        map::Map m = getMap( argv[1], argv[2] );
+        gamemap::Map m = getMap( argv[1], argv[2] );
         QApplication app( argc, argv );
 
         Ui::VertexView vv(&m);

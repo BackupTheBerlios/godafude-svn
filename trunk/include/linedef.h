@@ -15,7 +15,7 @@
 
 class QDataStream;
 
-namespace map
+namespace gamemap
 {
     //! This class represents a linedef
     class Linedef
