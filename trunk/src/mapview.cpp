@@ -18,7 +18,11 @@
 #include <QRect>
 #include <QResizeEvent>
 
+#include "godafude.h"
 #include "mapview.h"
+#include "vertex.h"
+
+using gamemap::Vertex;
 
 namespace Ui
 {
@@ -168,13 +172,45 @@ namespace Ui
 
     void MapView::mouseMoveEvent( QMouseEvent *e )
     {
-        int id = getID( e->pos() );
-
-        if( id != -1 )
+        // Note:
+        // This should be improved in the following way:
+        //  1. Make getSelectedVertices return std::set<int>
+        //  2. When the user moves the mouse while having Qt::LeftButton
+        //     pressed start an undoable action
+        //  3. Manually create the selectedVertices_ structure
+        //       foreach( i in getSelectedVertices )
+        //          do selectedVertices[i] = map->vertices[i] enddo;
+        //     This is exactly what should be stored in the undoable action,
+        //     so store it there and don't waste space in MapView!
+        //  4. Use the information of this undo action while dragging
+        if( (e->buttons() & Qt::LeftButton) &&
+            focusID_ != -1 )
         {
-            focusView_ = this;
-            focusID_ = id;
+            std::vector<Vertex> &vert = mymap_->vertices();
+
+            // Do the move:
+            // First figure out the new position of the focussed vertex
+            vert[focusID_].set(snap2grid(view2map(e->pos())));
+
+            // Get the distance that all other selected vertices have to move
+            QPoint dist = vert[focusID_] - selectedVertices_[focusID_];
+
+            std::map<int,Vertex>::iterator it;
+            for( it = selectedVertices_.begin() ; it != selectedVertices_.end() ; ++it )
+               vert[it->first].set(it->second + dist);
+
             update();
+        }
+         else
+        {
+            int id = getID( e->pos() );
+
+            if( id != -1 )
+            {
+                focusView_ = this;
+                focusID_ = id;
+                update();
+            }
         }
     }
     
@@ -208,8 +244,9 @@ namespace Ui
               selection_.erase(it);
             else
               selection_.insert( focusID_ );
-
-            update();
+           
+            // Start a drag action
+            getSelectedVertices();
         }
     }
 
@@ -240,8 +277,7 @@ namespace Ui
     
     void MapView::resizeEvent( QResizeEvent *e )
     {
-        QSize s = e->size()/2;
-        center_ = QPoint( s.width(), s.height() );
+        center_ = QPoint( 0, 0 ) + e->size()/2;
     }
     
     QPoint MapView::map2view( const QPoint &p ) const

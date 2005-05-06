@@ -27,8 +27,15 @@ namespace gamemap
             //! Load a linedef from a QDataStream
             Linedef( QDataStream &s, bool isHexen );
             
-            inline int v1() { return v1_; }
-            inline int v2() { return v2_; }
+            inline int v1() const { return v1_; }
+            inline int v2() const { return v2_; }
+            
+            inline bool twosided() const { return flags_.twosided; }
+
+            inline int action() const { return action_;}
+            inline int arg( int i ) const { return args_[i-1]; }
+
+            inline int side2() const { return side2_; }
   
         private:
             int v1_, v2_;

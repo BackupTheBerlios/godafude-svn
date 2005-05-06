@@ -16,7 +16,8 @@
 #include <QFile>
 
 #include "gamemap.h"
-#include "vertexview.h"
+#include "linedefview.h"
+//#include "vertexview.h"
 #include "wad.h"
 
 using namespace std;
@@ -53,7 +54,7 @@ int main( int argc, char **argv )
         gamemap::Map m = getMap( argv[1], argv[2] );
         QApplication app( argc, argv );
 
-        Ui::VertexView vv(&m);
+        Ui::LinedefView vv(&m);
 
         vv.show();
 

@@ -8,11 +8,11 @@
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
 
+#include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QPoint>
-#include <QRect>
 
+#include "godafude.h"
 #include "vertexview.h"
 
 using gamemap::Vertex;
@@ -23,41 +23,6 @@ namespace Ui
     const int VertexView::selectSize = 4;
     const int VertexView::findSize = 10;
 
-    void VertexView::mouseMoveEvent( QMouseEvent *e )
-    {
-        if( (e->buttons() & Qt::LeftButton) &&
-            focusID_ != -1 )
-        {
-            std::vector<Vertex> &vert = mymap_->vertices();
-
-            // Do the move:
-            // First figure out the new position of the focussed vertex
-            vert[focusID_].set(snap2grid(view2map(e->pos())));
-
-            // Get the distance that all other selected vertices have to move
-            QPoint dist = vert[focusID_] - orig_[focusID_];
-
-            std::set<int>::iterator it;
-            for( it = selection_.begin() ; it != selection_.end() ; ++it )
-               vert[*it].set(orig_[*it] + dist);
-
-            update();
-        }
-         else MapView::mouseMoveEvent( e );
-    }
-
-    void VertexView::mousePressEvent( QMouseEvent *e )
-    {
-        MapView::mousePressEvent(e);
-        if( e->button() == Qt::LeftButton )
-        {
-            orig_.clear();
-            for( std::set<int>::iterator it = selection_.begin();
-              it != selection_.end() ; ++it )
-             orig_[*it] = mymap_->vertices()[*it];
-        }
-    }
-
     void VertexView::paintEvent( QPaintEvent *e )
     {
         MapView::paintEvent( e );       // Draw the grid
@@ -66,7 +31,7 @@ namespace Ui
         QRect r(view2map(e->rect().topLeft()),
                 view2map(e->rect().bottomRight()));
 
-        QPainter paint(this);            // snap2grid(
+        QPainter paint(this);
 
         // Draw the outline of the map
         paint.setPen( Qt::lightGray );
@@ -155,6 +120,17 @@ namespace Ui
         }
 
         return nearestID;
+    }
+
+    void VertexView::getSelectedVertices()
+    {
+        selectedVertices_.clear();
+
+        const std::vector<gamemap::Vertex>  &vertices = mymap_->vertices();
+
+        std::set<int>::const_iterator it;
+        for( it = selection_.begin() ; it != selection_.end() ; ++it)
+          selectedVertices_[*it] = vertices[*it];
     }
 }
 

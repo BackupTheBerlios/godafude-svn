@@ -11,10 +11,12 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
+#include <map>
 #include <set>
 
 #include <QWidget>
 #include "gamemap.h"
+#include "vertex.h"
 
 class QActionGroup;
 class QMouseEvent;
@@ -80,7 +82,10 @@ namespace Ui
             
             //! Returns the ID of the object at (view) position p or -1
             virtual int getID( const QPoint &p ) const = 0;
-            
+
+            //! Fill the selectedVertices_ container
+            virtual void getSelectedVertices() = 0;
+
             inline const QPoint center() const { return center_; }
             QPoint map2view( const QPoint &p ) const;
             int mapx2viewx( int x ) const;
@@ -109,6 +114,9 @@ namespace Ui
             static int focusID_;        // ID of focussed object or -1 if none
 
             std::set<int> selection_;
+
+            //! Pairs: (vertexID, originalVertexPosition) for all vertices induced by selection_
+            std::map<int,gamemap::Vertex> selectedVertices_;
 
             QActionGroup *zoomActions, *gridActions;
 

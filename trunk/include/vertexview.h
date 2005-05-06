@@ -11,7 +11,7 @@
 #ifndef VERTEXVIEW_H
 #define VERTEXVIEW_H
 
-#include <map>
+#include <set>
 
 #include "gamemap.h"
 #include "mapview.h"
@@ -31,11 +31,11 @@ namespace Ui
             : MapView( myMap ), orig_() {}
 
         protected:
-            virtual void mouseMoveEvent( QMouseEvent* );
-            virtual void mousePressEvent( QMouseEvent* );
             virtual void paintEvent( QPaintEvent * );
             
             virtual int getID( const QPoint &p ) const;
+            virtual void getSelectedVertices();
+
         private:
             std::map<int,gamemap::Vertex> orig_;
 
