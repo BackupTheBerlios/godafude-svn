@@ -7,31 +7,10 @@
  * as published by the Free Software Foundation; either version 2 *
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
+ 
+#include "undoableaction.h"
 
-#ifndef LINEDEFVIEW_H
-#define LINEDEFVIEW_H
-
-#include <set>
-
-#include "mapview.h"
-
-class QPaintEvent;
-class QPoint;
-
-namespace Ui
+namespace actions
 {
-    class LinedefView : public MapView
-    {
-        public:
-            LinedefView( gamemap::Map *mymap )
-            : MapView( mymap ) {}
-
-        protected:
-            virtual void paintEvent( QPaintEvent* );
-            
-            virtual int getID( const QPoint &p ) const;
-            std::set<int> getSelectedVertices();
-    };
+    // empty
 }
-
-#endif

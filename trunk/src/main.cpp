@@ -47,7 +47,11 @@ int main( int argc, char **argv )
         return 0;
     }
 
-    cout << "Opening WAD file " << argv[1] << endl;
+    cout << "GODAFUDE 1.0 - Copyright(c) 2005 by Sascha Mueller\n"
+#ifndef NDEBUG
+         << "This is no release version!\n"
+#endif
+         << "Opening WAD file " << argv[1] << endl;
     
     try
     {

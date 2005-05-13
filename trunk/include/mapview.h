@@ -69,6 +69,8 @@ namespace Ui
             void gridDec();
             void gridToggle(bool);
 
+            void undo();
+
         protected:
             //! Mouse hover
             virtual void mouseMoveEvent( QMouseEvent* );
@@ -76,15 +78,14 @@ namespace Ui
             //! Selection
             virtual void mousePressEvent( QMouseEvent* );
 
+            virtual void mouseReleaseEvent( QMouseEvent* );
+
             //! This draws a grid (and nothing else)
             virtual void paintEvent( QPaintEvent* );
             virtual void resizeEvent( QResizeEvent* );
             
             //! Returns the ID of the object at (view) position p or -1
             virtual int getID( const QPoint &p ) const = 0;
-
-            //! Fill the selectedVertices_ container
-            virtual void getSelectedVertices() = 0;
 
             inline const QPoint center() const { return center_; }
             QPoint map2view( const QPoint &p ) const;
@@ -108,6 +109,9 @@ namespace Ui
             */
             QPoint snap2grid( const QPoint &p, snaptype dir = nearest ) const;
 
+            //! Return the IDs of all vertices induced by the current selection
+            virtual std::set<int> getSelectedVertices() = 0;
+
             gamemap::Map *mymap_;
             
             static MapView *focusView_; // View that has the ID focus
@@ -115,10 +119,10 @@ namespace Ui
 
             std::set<int> selection_;
 
-            //! Pairs: (vertexID, originalVertexPosition) for all vertices induced by selection_
-            std::map<int,gamemap::Vertex> selectedVertices_;
+            QPoint mousePosAtLeftClick_;
 
             QActionGroup *zoomActions, *gridActions;
+            QAction *undoAct_;
 
         private:
             //! How many (map-)units to move if a cursor key is pressed

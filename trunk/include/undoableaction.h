@@ -8,29 +8,33 @@
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
 
-#ifndef LINEDEFVIEW_H
-#define LINEDEFVIEW_H
+#ifndef UNDOABLEACTION_H
+#define UNDOABLEACTION_H
 
-#include <set>
+#include "gamemap.h"
 
-#include "mapview.h"
-
-class QPaintEvent;
-class QPoint;
-
-namespace Ui
+typedef enum ActionType
 {
-    class LinedefView : public MapView
+    MOVEACTION
+};
+
+namespace actions
+{
+    class UndoableAction
     {
         public:
-            LinedefView( gamemap::Map *mymap )
-            : MapView( mymap ) {}
+        
+            UndoableAction( gamemap::Map *mymap )
+            : mymap_(mymap) {}
+
+            virtual ~UndoableAction() {};
+            
+            virtual const ActionType actionType() const = 0;
+
+            virtual void undo() = 0;
 
         protected:
-            virtual void paintEvent( QPaintEvent* );
-            
-            virtual int getID( const QPoint &p ) const;
-            std::set<int> getSelectedVertices();
+            gamemap::Map *mymap_;
     };
 }
 

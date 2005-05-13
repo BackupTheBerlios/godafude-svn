@@ -17,6 +17,7 @@ using wad::Wad;
 namespace gamemap
 {
     Map::Map( Wad *w, Wad::iterator &l )
+    : undostack_()
     {
         // TODO: Verify that l.name is a map start
         for(;;)

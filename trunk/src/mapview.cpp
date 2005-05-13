@@ -7,6 +7,16 @@
  * as published by the Free Software Foundation; either version 2 *
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
+ 
+ // BUGS:
+ // 1.
+ // Greying out "undo" is not really working
+ // find an elegant way to keep the state of the action up to date
+ //
+ // 2.
+ // Implement "redo"
+
+#include <cassert>
 
 #include <QAction>
 #include <QActionGroup>
@@ -20,8 +30,11 @@
 
 #include "godafude.h"
 #include "mapview.h"
+#include "moveaction.h"
 #include "vertex.h"
 
+using actions::MoveAction;
+using actions::UndoableAction;
 using gamemap::Vertex;
 
 namespace Ui
@@ -107,6 +120,12 @@ namespace Ui
         connect( act, SIGNAL(toggled(bool)), this, SLOT(gridToggle(bool)) );
         gridToggleAct_ = act;
         addAction( gridToggleAct_ );
+
+        act = new QAction( tr("Undo"), this );
+        act->setShortcut( QKeySequence( Qt::CTRL | Qt::Key_Z  ) );
+        act->setEnabled(false);
+        connect( act, SIGNAL(triggered()), this, SLOT(undo()) );
+        undoAct_ = act;
     }
     
     void MapView::mapLeft()
@@ -170,33 +189,37 @@ namespace Ui
         update();
     }
 
+    void MapView::undo()
+    {
+        if( !mymap_->undostack().empty() )
+        {
+            UndoableAction *act = mymap_->undostack().top();
+            act->undo(); update();
+            mymap_->undostack().pop();
+            delete act;
+        }
+        undoAct_->setEnabled( !mymap_->undostack().empty() );
+    }
+
     void MapView::mouseMoveEvent( QMouseEvent *e )
     {
-        // Note:
-        // This should be improved in the following way:
-        //  1. Make getSelectedVertices return std::set<int>
-        //  2. When the user moves the mouse while having Qt::LeftButton
-        //     pressed start an undoable action
-        //  3. Manually create the selectedVertices_ structure
-        //       foreach( i in getSelectedVertices )
-        //          do selectedVertices[i] = map->vertices[i] enddo;
-        //     This is exactly what should be stored in the undoable action,
-        //     so store it there and don't waste space in MapView!
-        //  4. Use the information of this undo action while dragging
         if( (e->buttons() & Qt::LeftButton) &&
             focusID_ != -1 )
         {
+            // Hopefully we are inside a move action
+            assert( !mymap_->undostack().empty() &&
+            mymap_->undostack().top()->actionType() == MOVEACTION );
+
+            MoveAction *act = dynamic_cast<MoveAction*>(mymap_->undostack().top());
+
             std::vector<Vertex> &vert = mymap_->vertices();
 
             // Do the move:
-            // First figure out the new position of the focussed vertex
-            vert[focusID_].set(snap2grid(view2map(e->pos())));
+            // Figure out the distance that the mouse travelled
+            QPoint dist = (e->pos() - mousePosAtLeftClick_)/zoom();
 
-            // Get the distance that all other selected vertices have to move
-            QPoint dist = vert[focusID_] - selectedVertices_[focusID_];
-
-            std::map<int,Vertex>::iterator it;
-            for( it = selectedVertices_.begin() ; it != selectedVertices_.end() ; ++it )
+            std::map<int,Vertex>::const_iterator it;
+            for( it = act->vertices().begin() ; it != act->vertices().end() ; ++it )
                vert[it->first].set(it->second + dist);
 
             update();
@@ -220,6 +243,7 @@ namespace Ui
         {
             QMenu m;
 
+            m.addAction( undoAct_ );
             m.addActions( zoomActions->actions() );
             m.addActions( gridActions->actions() );
             m.addAction( gridToggleAct_ );
@@ -228,6 +252,8 @@ namespace Ui
 
             return;
         }
+
+        mousePosAtLeftClick_ = e->pos();
 
         // Handle selections
         if( focusView_ == this )
@@ -244,10 +270,35 @@ namespace Ui
               selection_.erase(it);
             else
               selection_.insert( focusID_ );
-           
-            // Start a drag action
-            getSelectedVertices();
+
+            // Start a drag action              
+            // (if the user doesn't move anything, this will be deleted by MouseReleaseEvent)
+            mymap_->undostack().push( new MoveAction( getSelectedVertices(), mymap_ ) );
+            undoAct_->setEnabled(true);            
         }
+    }
+
+    void MapView::mouseReleaseEvent( QMouseEvent* )
+    {
+        // Finalize the move action
+        if( !mymap_->undostack().empty() &&
+            mymap_->undostack().top()->actionType() == MOVEACTION )
+        {
+            MoveAction *act = dynamic_cast<MoveAction*>(mymap_->undostack().top());
+
+            std::vector<Vertex> &vert = mymap_->vertices();
+
+            std::map<int,gamemap::Vertex>::iterator it;
+
+            for( it = act->vertices().begin() ; it != act->vertices().end() ; ++it )
+              if( vert[it->first] == it->second ) act->vertices().erase(it);
+
+            if( act->vertices().empty() )
+            {
+                mymap_->undostack().pop();
+                delete act;
+            }
+        }   
     }
 
     void MapView::paintEvent( QPaintEvent *e )

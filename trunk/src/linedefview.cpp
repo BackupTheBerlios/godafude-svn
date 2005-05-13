@@ -92,19 +92,20 @@ namespace Ui
         }
     }
 
-    void LinedefView::getSelectedVertices()
+    std::set<int> LinedefView::getSelectedVertices()
     {
-        selectedVertices_.clear();
+        std::set<int> result;
 
-        const std::vector<gamemap::Vertex>  &vertices = mymap_->vertices();
         const std::vector<gamemap::Linedef> &linedefs = mymap_->linedefs();
 
         for( std::set<int>::iterator it = selection_.begin()
          ; it != selection_.end() ; ++it )
         {
-            selectedVertices_[linedefs[*it].v1()] = vertices[linedefs[*it].v1()];
-            selectedVertices_[linedefs[*it].v2()] = vertices[linedefs[*it].v2()];
+            result.insert( linedefs[*it].v1() );
+            result.insert( linedefs[*it].v2() );
         }
+
+        return std::set<int>(result);
     }
 
     int LinedefView::getID( const QPoint &p ) const

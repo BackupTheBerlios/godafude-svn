@@ -3,7 +3,7 @@
 # todo: There should be some more clever tests here
 
 progname=Godafude
-qtversion="4.0.0-rc1-snapshot-20050427"
+qtversion="4.0.0-rc1-snapshot-20050511"
 qtlibdir=$QTDIR
 qttest=yes
 
@@ -35,7 +35,7 @@ done
 
 echo "** Note:"
 echo "** This development version of $progname needs a late snapshot of"
-echo "** QT 4, at least $qtversion"
+echo "** QT 4, probably $qtversion"
 echo "**"
 echo "** This script only tests that _some_ version of QT 4 is"
 echo "** installed in "$QTDIR""

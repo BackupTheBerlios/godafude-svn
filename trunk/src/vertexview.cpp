@@ -7,7 +7,7 @@
  * as published by the Free Software Foundation; either version 2 *
  * of the License, or (at your option) any later version.         *
  ******************************************************************/
-
+ 
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
@@ -122,15 +122,9 @@ namespace Ui
         return nearestID;
     }
 
-    void VertexView::getSelectedVertices()
+    std::set<int> VertexView::getSelectedVertices()
     {
-        selectedVertices_.clear();
-
-        const std::vector<gamemap::Vertex>  &vertices = mymap_->vertices();
-
-        std::set<int>::const_iterator it;
-        for( it = selection_.begin() ; it != selection_.end() ; ++it)
-          selectedVertices_[*it] = vertices[*it];
+        return std::set<int>(selection_);
     }
 }
 

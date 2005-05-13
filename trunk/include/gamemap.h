@@ -11,12 +11,16 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <stack>
 #include <vector>
 
 #include "linedef.h"
 #include "thing.h"
 #include "vertex.h"
 #include "wad.h"
+
+// Forward declaration to avoid circular inclusion
+namespace actions { class UndoableAction; }
 
 //! Namespace for everything related to DOOM maps
 namespace gamemap
@@ -32,14 +36,18 @@ namespace gamemap
              */
             Map( wad::Wad *w, wad::Wad::iterator &l );
 
-            std::vector<Linedef> &linedefs() { return linedefs_; }
-            std::vector<Thing> &things() { return things_; }
-            std::vector<Vertex> &vertices() { return vertices_; }
+            inline std::vector<Linedef> &linedefs() { return linedefs_; }
+            inline std::vector<Thing> &things() { return things_; }
+            inline std::vector<Vertex> &vertices() { return vertices_; }
+
+            inline std::stack<actions::UndoableAction*> &undostack() { return undostack_; }
 
         private:
             std::vector<Linedef> linedefs_;
             std::vector<Thing> things_;
             std::vector<Vertex> vertices_;
+
+            std::stack<actions::UndoableAction*> undostack_;
     };
 }
 

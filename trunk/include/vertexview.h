@@ -34,7 +34,7 @@ namespace Ui
             virtual void paintEvent( QPaintEvent * );
             
             virtual int getID( const QPoint &p ) const;
-            virtual void getSelectedVertices();
+            std::set<int> getSelectedVertices();
 
         private:
             std::map<int,gamemap::Vertex> orig_;
