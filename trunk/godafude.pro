@@ -15,6 +15,8 @@ SOURCES = src/main.cpp \
           src/vertex.cpp src/vertexview.cpp \
           src/wad.cpp
 
+RESOURCES = res/godafude.qrc
+
 INCLUDEPATH = include
 OBJECTS_DIR = obj
 MOC_DIR = obj

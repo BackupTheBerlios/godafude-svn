@@ -20,6 +20,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QIcon>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
@@ -85,15 +86,15 @@ namespace Ui
         // Zoom keys
         zoomActions = new QActionGroup(this);
         
-        act = new QAction( tr("Zoom In"), zoomActions);
+        act = new QAction( QIcon(":/icons/viewmag+.png"), tr("Zoom In"), zoomActions);
         act->setShortcut( QKeySequence( Qt::Key_Plus ) );
         connect( act, SIGNAL(triggered()), this, SLOT(zoomIn()) );
         
-        act = new QAction( tr("Zoom Out"), zoomActions);
+        act = new QAction( QIcon(":/icons/viewmag-.png"), tr("Zoom Out"), zoomActions);
         act->setShortcut( QKeySequence( Qt::Key_Minus ) );
         connect( act, SIGNAL(triggered()), this, SLOT(zoomOut()) );
         
-        act = new QAction( tr("Zoom to 100%"), zoomActions);
+        act = new QAction( QIcon(":/icons/viewmag1.png"), tr("Zoom to 100%"), zoomActions);
         act->setShortcut( QKeySequence( Qt::Key_Asterisk ) );
         connect( act, SIGNAL(triggered()), this, SLOT(zoom100()) );
         
