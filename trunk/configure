@@ -1,11 +1,14 @@
-#!/bin/sh
-#
-# todo: There should be some more clever tests here
+#!/bin/bash
 
 progname=Godafude
-qtversion="4.0.0-rc1-snapshot-20050511"
-qtlibdir=$QTDIR
+qtversion="4.0.0-rc1-snapshot-20050519"
 qttest=yes
+
+# Various attempts to find the most probable location of Qt 4
+qtlibdir=`which qt3to4`
+qtlibdir=${qtlibdir:-${QTDIR:+`which $QTDIR/bin/qt3to4`}}
+qtlibdir=${qtlibdir:-`which qtdir`}
+qtlibdir=${qtlibdir%bin/*}
 
 while [ "$#" -gt 0 ]; do
     case $1 in
@@ -33,25 +36,30 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
+# if qtlibdir is still unset, use current directory
+# (of course we would already have found Qt if it was there,
+#  but qtlibdir is unset, $qtlib/bin is no good idea)
+qtlibdir=${qtlibdir:-'.'}
+
 echo "** Note:"
 echo "** This development version of $progname needs a late snapshot of"
 echo "** QT 4, probably $qtversion"
 echo "**"
-echo "** This script only tests that _some_ version of QT 4 is"
-echo "** installed in "$QTDIR""
+echo "** This script only tests that _some_ version of QT 4 is installed"
 echo
-
+echo Found a version of QT in $qtlibdir
+echo
 echo -n "Testing QT version ... "
 
 if [ $qttest = 'yes' ]; then
-    if [ -f $qtlibdir/bin/qt3to4 ]; then
+    if [ `which $qtlibdir/bin/qt3to4 2>/dev/null` ]; then
         echo okay
     else
         echo failed
         echo
-        echo No suitable version of QT was found.
-        echo 'Set $QTDIR to a directory containing'
-	echo QT 4, or use the command line option --qtdir=...
+        echo No suitable version of QT was found in system path.
+        echo 'Add the bin directory of a QT 4 installation to $PATH,' 
+	echo or use the command line option --qtdir=...
         exit
     fi
 else
@@ -59,6 +67,6 @@ else
 fi
 
 echo Running qmake
-QTDIR=$qtlibdir $qtlibdir/bin/qmake
+QTDIR= $qtlibdir/bin/qmake
 
 echo You may now run make
